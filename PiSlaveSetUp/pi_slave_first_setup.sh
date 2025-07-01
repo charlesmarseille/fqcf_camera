@@ -23,6 +23,7 @@ DNS="8.8.8.8"
 # Delete any existing connection using eth0 (optional safety)
 nmcli connection modify "Wired connection 1" ipv4.addresses 192.168.0.108/24 ipv4.gateway 192.168.0.1 ipv4.dns "8.8.8.8" ipv4.method manual
 nmcli connection up "Wired connection 1"
+nmcli connection down preconfigured
 
 apt install git
 git clone https://github.com/charlesmarseille/fqcf_camera
