@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pi Image Collage</title>
+    <style>
+        body {
+            background-color: black;
+            color: white; /* Make text white for better visibility on black */
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: left;
+        }
+        .image-container {
+            margin: 5px;
+        }
+        img {
+            max-width: 300px;
+            max-height: 300px;
+            border: 1px solid white; /* Changed border color to white */
+        }
+    </style>
+</head>
+<body>
+    <h1>Pi Image Collage</h1>
+    <div class="container">
+        {% for pi_number, image_path in images.items() %}
+            <div class="image-container">
+                <h2>Pi {{ pi_number }}</h2>
+                {% if image_path %}
+                    <img src="{{ url_for('serve_image', filename=image_path.split('/')[-1]) }}" alt="Pi {{ pi_number }} Image">
+                {% else %}
+                    <p>No image available yet.</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
