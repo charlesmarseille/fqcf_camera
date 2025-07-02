@@ -62,7 +62,7 @@ echo "Lancement du script setup_ssh.sh..."
 USER_HOSTNAME=$(hostname)
 USER_HOME="/home/$USER_HOSTNAME"
 cd $USER_HOME
-cd PiSlaveSetUp
+cd fqcf_camera/PiSlaveSetUp
 sudo chmod +x setup_ssh.sh
 ./setup_ssh.sh
 echo "fin du script setup_ssh.sh..."
