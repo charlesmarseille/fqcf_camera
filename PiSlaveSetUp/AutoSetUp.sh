@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo apt-get update -y && sudo apt-get upgrade -y
+
 # Désactiver la synchronisation automatique de l'heure
 sudo timedatectl set-ntp off
 #sudo apt update
@@ -26,7 +28,6 @@ sudo apt install -y python3-setuptools python3-wheel python3-dev
 sudo python3 setup.py install
 
 echo "Installation des bibliothèques Python nécessaires..."
-#sudo apt update
 which python3
 which pip
 sudo apt install python3-picamera2 python3-ntplib python3-systemd python3-netifaces python3-opencv -y
