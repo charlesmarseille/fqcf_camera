@@ -20,14 +20,14 @@ def receive_config():
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_sock:
             tcp_sock.bind(("", CONFIG_PORT))
             tcp_sock.listen(1)
-            print(f"En attente de la configuration sur le port {CONFIG_PORT}...")
+            print(f"Waiting for config on port {CONFIG_PORT}...")
             conn, addr = tcp_sock.accept()
             with conn:
                 data = conn.recv(BUFFER_SIZE)
                 config = json.loads(data.decode())
-                print(f"Configuration reçue de {addr}: {config}")
+                print(f"Config received from {addr}: {config}")
     except Exception as e:
-        print(f"Erreur lors de la réception de la configuration: {e}")
+        print(f"Error receiving config: {e}")
     return config
 
 
@@ -36,7 +36,7 @@ def receive_Picture_Request():
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind(("", PORT))  # Écoute sur toutes les interfaces pour voir tous les paquets
 
-    print(f"Waiting for timesync packet on port {PORT}...")
+    print(f"Waiting for picture request on port {PORT}...")
     picam2 = Picamera2()
     picam2.configure(picam2.create_still_configuration(main={"format": "RGB888", "size": (4608,2592)}, controls={"AwbEnable": False, "Brightness": 0.0, "Contrast": 0.0, "Saturation": 0.0,"Sharpness": 0.0, "ExposureTime": 1000, "AnalogueGain": 1.0, "ColourGains": (1.0,1.0), "LensPosition": 0.0, "AfMode":0,"NoiseReductionMode": 0, "ScalerCrop": (0,0,4608,2592) } ))
 
@@ -58,7 +58,7 @@ def receive_Picture_Request():
                 nom_fichier = os.path.join(dossier_destination, f"pi{pi_number}_"+ str(id) + "_" +datetime.now().strftime("%Y%m%d_%H%M%S%f")[:-3]+ ".jpg") #date format YYYYMMDD_HHMMSSmmm
                 picam2.capture_file(nom_fichier)
             else:
-                print("Packet ignored, invalid format.")
+                print("Packet ignored, invalid format: {message}")
         except Exception as e:
             print(f"Error receiving packet: {e}")
 
