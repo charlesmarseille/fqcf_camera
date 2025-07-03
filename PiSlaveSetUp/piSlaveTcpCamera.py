@@ -41,7 +41,7 @@ def receive_Picture_Request():
                 print(f"Packet received from {addr}: {message}")
                 if message.startswith(HEADER):
                     id = message.split("Photo:")[1]
-                    nom_fichier = os.path.join(dossier_destination, f"pi{pi_number}_{id:04d}_" +datetime.now().strftime("%Y%m%d_%H%M%S%f")[:-3]+ ".jpg") #date format YYYYMMDD_HHMMSSmmm
+                    nom_fichier = os.path.join(dossier_destination, f"pi{pi_number}_{int(id):04d}_" +datetime.now().strftime("%Y%m%d_%H%M%S%f")[:-3]+ ".jpg") #date format YYYYMMDD_HHMMSSmmm
                     picam2.capture_file(nom_fichier)
                 else:
                     print(f"Packet ignored, invalid format: {message}")
