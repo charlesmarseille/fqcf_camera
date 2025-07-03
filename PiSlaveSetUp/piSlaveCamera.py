@@ -7,6 +7,7 @@ from picamera2 import Picamera2
 import json
 
 # Configuration
+pi_number = os.uname().nodename[-1]
 PORT = 12344  # Port d'écoute
 BUFFER_SIZE = 1024  # Taille du buffer de réception
 INTERFACE = "eth0"  # Interface réseau spécifique
@@ -35,7 +36,7 @@ def receive_Picture_Request():
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind(("", PORT))  # Écoute sur toutes les interfaces pour voir tous les paquets
 
-    print(f"En attente de l'horodatage au port {PORT}...")
+    print(f"Waiting for timesync packet on port {PORT}...")
     picam2 = Picamera2()
     picam2.configure(picam2.create_still_configuration(main={"format": "RGB888", "size": (4608,2592)}, controls={"AwbEnable": False, "Brightness": 0.0, "Contrast": 0.0, "Saturation": 0.0,"Sharpness": 0.0, "ExposureTime": 1000, "AnalogueGain": 1.0, "ColourGains": (1.0,1.0), "LensPosition": 0.0, "AfMode":0,"NoiseReductionMode": 0, "ScalerCrop": (0,0,4608,2592) } ))
 
@@ -48,17 +49,18 @@ def receive_Picture_Request():
 
     while True:
         try:
+            print("waiting for packet...")
             data, addr = sock.recvfrom(BUFFER_SIZE)
             message = data.decode().strip()
-            print(f"Paquet reçu de {addr}: {message}")
+            print(f"Packet received from {addr}: {message}")
             if message.startswith(HEADER):
                 id = message.split("Photo:")[1]
-                nom_fichier = os.path.join(dossier_destination, "pi3_"+ str(id) + "_" +datetime.now().strftime("%Y%m%d_%H%M%S%f")[:-3]+ ".jpg") #date format YYYYMMDD_HHMMSSmmm
+                nom_fichier = os.path.join(dossier_destination, f"pi{pi_number}_"+ str(id) + "_" +datetime.now().strftime("%Y%m%d_%H%M%S%f")[:-3]+ ".jpg") #date format YYYYMMDD_HHMMSSmmm
                 picam2.capture_file(nom_fichier)
             else:
-                print("Paquet ignoré, format invalide.")
+                print("Packet ignored, invalid format.")
         except Exception as e:
-            print(f"Erreur lors de la réception du paquet: {e}")
+            print(f"Error receiving packet: {e}")
 
 if __name__ == "__main__":
     receive_Picture_Request()

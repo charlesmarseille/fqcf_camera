@@ -5,6 +5,7 @@ sudo echo "dtoverlay=w5500" | sudo tee -a /boot/firmware/config.txt
 
 sudo raspi-config nonint do_spi 0
 sudo raspi-config nonint do_i2c 0
+sudo raspi-config nonint do_change_timezone UTC
 
 sudo reboot
 
