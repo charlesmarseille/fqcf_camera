@@ -7,10 +7,8 @@ from picamera2 import Picamera2
 # Configuration
 PORT = 12344  # Port d'envoi des requêtes
 
-pi_numbers = [8]
+pi_numbers = [1]
 pi_ips = [f"192.168.0.10{pi_number}" for pi_number in pi_numbers]
-SERVER = "192.168.1.101"  # Adresse IP du premier serveur
-SERVER_2 = "192.168.1.103"  # Adresse IP du deuxième serveur
 HEADER = "Photo"  # Entête pour identifier les paquets
 
 def send_tcp_message(server_ip, port, message):
