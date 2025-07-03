@@ -73,10 +73,9 @@ sudo apt install rsync -y
 echo "Création du fichier de service pour la sauvegarde continue..."
 USER_HOSTNAME=$(hostname)
 USER_HOME="/home/$USER_HOSTNAME"
-RSYNC_PATH=$(readlink -f rsync.sh)
+RSYNC_PATH=$USER_HOME/fqcf_camera/PiSlaveSetUp/rsync.sh
 
-sudo chmod +x rsync.sh
-
+sudo chmod +x $RSYNC_PATH
 
 sudo bash -c "cat > /etc/systemd/system/continuous_backup.service <<EOF
 [Unit]

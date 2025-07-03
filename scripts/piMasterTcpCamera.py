@@ -42,11 +42,15 @@ def capture_picture():
             send_tcp_message(ip, PORT, message)
 
         # Capture de l'image après la transmission des messages
-        nom_fichier = os.path.join(dossier_destination, f"pi0_{id}_{datetime.now().strftime('%Y%m%d_%H%M%S%f')[:-3]}.jpg")
+        nom_fichier = os.path.join(
+            dossier_destination,
+            f"pi0_{id:04d}_{datetime.now().strftime('%Y%m%d_%H%M%S%f')[:-3]}.jpg"
+        )
         picam2.capture_file(nom_fichier)
-        if os.path.exists(nom_fichier):
+        if os.path.getsize(nom_fichier) > 1000:
             print(f"Image captured and saved as {nom_fichier}")
             id += 1
+            sleep(0.5)
         else:
             print(f"Failed to capture image for id {id}")
         
