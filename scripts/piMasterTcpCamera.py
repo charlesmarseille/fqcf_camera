@@ -28,7 +28,7 @@ def send_tcp_message(server_ip, port, message):
 def capture_picture():
     """Capture une photo après l'envoi des requêtes TCP"""
     picam2 = Picamera2()
-    picam2.configure(picam2.create_still_configuration(main={"format": "RGB888", "size": (640, 480)}))
+    picam2.configure(picam2.create_still_configuration(main={"format": "RGB888", "size": (4608,2592)}))
     picam2.start()
 
     dossier_destination = "/mnt/ssd/backup/0/"

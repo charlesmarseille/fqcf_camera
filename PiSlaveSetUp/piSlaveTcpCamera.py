@@ -22,7 +22,8 @@ def receive_Picture_Request():
 
     print(f"Waiting for picture request on port {PORT}...")
     picam2 = Picamera2()
-    picam2.configure(picam2.create_still_configuration(main={"format": "RGB888", "size": (4608,2592)}, controls={"AwbEnable": False, "Brightness": 0.0, "Contrast": 0.0, "Saturation": 0.0,"Sharpness": 0.0, "ExposureTime": 1000, "AnalogueGain": 1.0, "ColourGains": (1.0,1.0), "LensPosition": 0.0, "AfMode":0,"NoiseReductionMode": 0, "ScalerCrop": (0,0,4608,2592) } ))
+    # picam2.configure(picam2.create_still_configuration(main={"format": "RGB888", "size": (4608,2592)}, controls={"AwbEnable": False, "Brightness": 0.0, "Contrast": 0.0, "Saturation": 0.0,"Sharpness": 0.0, "ExposureTime": 1000, "AnalogueGain": 1.0, "ColourGains": (1.0,1.0), "LensPosition": 0.0, "AfMode":0,"NoiseReductionMode": 0, "ScalerCrop": (0,0,4608,2592) } ))
+    picam2.configure(picam2.create_still_configuration(main={"format": "RGB888", "size": (4608,2592)}))
 
     # Dossier de destination
     dossier_destination = "photo"

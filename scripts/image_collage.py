@@ -81,19 +81,41 @@ ABOUT_TAB_TEMPLATE = """
 """
 
 COLLAGE_TEMPLATE = """
-<div class="collage" style="flex-direction: row;">
+<div class="collage" style="flex-direction: row; gap: 0; margin-top: 10px;">
     {% for i in [1,2,3,0,4,5,6] %}
-    <div class="side" style="flex-direction: column; align-items: center; margin: 0 8px;">
-        <div class="label">Pi {{i}}</div>
+    <div class="side" style="flex-direction: column; align-items: center; margin: 0 2px; padding: 0;">
+        <div class="label" style="margin-bottom: 2px;">Pi {{i}}</div>
         {% if images[i] %}
-        <img src="/image_file/{{images[i]}}" alt="Pi {{i}}">
+        <img src="/image_file/{{images[i]}}" alt="Pi {{i}}" style="transform: rotate(-90deg); margin: 0; border-width: 1px; cursor: pointer;"
+             onclick="window.open('/image_fullscreen/{{images[i]}}', '_blank')">
         {% else %}
-        <div style="width:200px;height:150px;background:#333;color:#888;display:flex;align-items:center;justify-content:center;">No image</div>
+        <div style="width:200px;height:150px;background:#333;color:#888;display:flex;align-items:center;justify-content:center;margin:0;">No image</div>
         {% endif %}
     </div>
     {% endfor %}
 </div>
 """
+
+# Add this route to serve fullscreen image view
+FULLSCREEN_IMAGE_TEMPLATE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fullscreen Image</title>
+    <style>
+        body { margin: 0; background: #111; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        img { max-width: 98vw; max-height: 98vh; background: #222; border: 4px solid #fff; transform: rotate(-90deg); }
+    </style>
+</head>
+<body>
+    <img src="/image_file/{{ filename }}" alt="Fullscreen Image">
+</body>
+</html>
+"""
+
+@app.route('/image_fullscreen/<path:filename>')
+def image_fullscreen(filename):
+    return render_template_string(FULLSCREEN_IMAGE_TEMPLATE, filename=filename)
 
 IMAGE_ID_ITEM_TEMPLATE = """
 {% for image_id in image_ids %}

@@ -98,7 +98,7 @@ After=network.target
 [Service]
 ExecStart=$HOME/fqcf_camera/venv/bin/python3 $HOME/fqcf_camera/PiSlaveSetUp/piSlaveTcpCamera.py
 Restart=always
-User=$USER_HOSTNAME
+User=root
 
 [Install]
 WantedBy=multi-user.target
@@ -122,11 +122,11 @@ sudo systemctl daemon-reload
 sleep 5
 sudo systemctl enable timestamp_sync.service
 sudo systemctl enable continuous_backup.service
-sudo systemctl enable piCameraTcpSlave.service
+sudo systemctl enable piSlaveTcpCamera.service
 sleep 5
 sudo systemctl start timestamp_sync.service
 sudo systemctl start continuous_backup.service
-sudo systemctl start piCameraTcpSlave.service
+sudo systemctl start piSlaveTcpCamera.service
 echo "Configuration terminée !"
 
 echo "service continuous_backup state: "

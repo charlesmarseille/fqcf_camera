@@ -1,0 +1,23 @@
+Host pi1
+    HostName 192.168.0.101
+    User pi1
+
+Host pi2
+    HostName 192.168.0.102
+    User pi2
+
+Host pi3
+    HostName 192.168.0.103
+    User pi3
+
+Host pi4
+    HostName 192.168.0.104
+    User pi4
+
+Host pi5
+    HostName 192.168.0.105
+    User pi5
+
+Host pi6
+    HostName 192.168.0.106
+    User pi6
