@@ -3,6 +3,7 @@ import socket
 import os
 from datetime import datetime
 from picamera2 import Picamera2
+import glob
 
 # Configuration
 PORT = 12344  # Port d'envoi des requêtes
@@ -32,8 +33,24 @@ def capture_picture():
 
     dossier_destination = "/mnt/ssd/backup/0/"
     os.makedirs(dossier_destination, exist_ok=True)
+    # Chercher le dernier id utilisé dans le dossier de destination
+    pattern = os.path.join(dossier_destination, "pi0_*.jpg")
+    files = glob.glob(pattern)
+    if files:
+        # Extraire les ids et trouver le max
+        ids = []
+        for f in files:
+            basename = os.path.basename(f)
+            parts = basename.split('_')
+            if len(parts) >= 2 and parts[1].isdigit():
+                ids.append(int(parts[1]))
+        last_id = max(ids) + 1 if ids else 0
+    else:
+        # Aucun fichier trouvé, commencer à 0
+        print("No previous images found on master pi0, starting with id 0.")
+        last_id = 0
 
-    id = 0
+    id = last_id
     while True:
         message = f"{HEADER}:{id}"
 
@@ -50,7 +67,7 @@ def capture_picture():
         if os.path.getsize(nom_fichier) > 1000:
             print(f"Image captured and saved as {nom_fichier}")
             id += 1
-            sleep(0.5)
+            time.sleep(0.5)
         else:
             print(f"Failed to capture image for id {id}")
         

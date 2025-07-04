@@ -8,34 +8,44 @@ sudo timedatectl set-ntp off
 
 #turbojpeg
 sudo apt install libturbojpeg0-dev libjpeg-dev -y
-sudo apt install -y cmake build-essential nasm yasm pkg-config autoconf automake libtool
+sudo apt install -y cmake build-essential nasm yasm pkg-config autoconf automake libtool python3-dev python3-numpy gfortran libopenblas-dev liblapack-dev cython3 build-essential git python3-setuptools python3-wheel
 
 cd /usr/local/src
 sudo git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
 cd libjpeg-turbo
 
-#sudo mkdir build && cd build
+sudo mkdir build && cd build
 
-#sudo cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Release ..
-#sudo make -j$(nproc)
-#sudo make install
+sudo cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Release ..
+sudo make -j$(nproc)
+sudo make install
 
 cd /usr/local/src
 sudo git clone https://github.com/lilohuang/PyTurboJPEG.git
 cd PyTurboJPEG
-
-sudo apt install -y python3-setuptools python3-wheel python3-dev
 sudo python3 setup.py install
 
 echo "Installation des bibliothèques Python nécessaires..."
-which python3
-which pip
 sudo apt install python3-picamera2 python3-ntplib python3-systemd python3-netifaces python3-opencv -y
+sudo apt install libcamera-dev libcamera-apps python3-libcamera
+
+cd ~/fqcf_camera 
+python3 -m venv venv --system-site-packages
+source venv/bin/activate
+pip install numpy==1.24.2
+python3 -c "import picamera2"
+if [ $? -eq 0 ]; then
+    echo "picamera2 import successful, continuing..."
+else
+    echo "Erreur lors de l'importation de picamera2. Arrêt du script."
+    exit 1
+fi
+
 
 sleep 3
 
 echo "Création du fichier de service pour la synchronisation de l'horodatage..."
-PYTHON_SCRIPT_PATH=$HOME/PiSlaveSetUp/piSlaveTimeSync.py
+PYTHON_SCRIPT_PATH=$HOME/fqcf_camera/PiSlaveSetUp/piSlaveTimeSync.py
 
 sudo bash -c "cat > /etc/systemd/system/timestamp_sync.service <<EOF
 [Unit]
@@ -51,19 +61,10 @@ User=root
 WantedBy=multi-user.target
 EOF"
 
-# Recharger systemd et activer le service
-sudo systemctl daemon-reload
-sleep 5
-sudo systemctl enable timestamp_sync.service
-sleep 5
-sudo systemctl start timestamp_sync.service
-
 
 echo "Lancement du script setup_ssh.sh..."
 USER_HOSTNAME=$(hostname)
-USER_HOME="/home/$USER_HOSTNAME"
-cd $USER_HOME
-cd fqcf_camera/PiSlaveSetUp
+cd $HOME/fqcf_camera/PiSlaveSetUp
 sudo chmod +x setup_ssh.sh
 ./setup_ssh.sh
 echo "fin du script setup_ssh.sh..."
@@ -71,12 +72,8 @@ echo "fin du script setup_ssh.sh..."
 sudo apt install rsync -y
 
 echo "Création du fichier de service pour la sauvegarde continue..."
-USER_HOSTNAME=$(hostname)
-USER_HOME="/home/$USER_HOSTNAME"
-RSYNC_PATH=$USER_HOME/fqcf_camera/PiSlaveSetUp/rsync.sh
-
+RSYNC_PATH=~/fqcf_camera/PiSlaveSetUp/rsync.sh
 sudo chmod +x $RSYNC_PATH
-
 sudo bash -c "cat > /etc/systemd/system/continuous_backup.service <<EOF
 [Unit]
 Description=Rsync continuous backup service
@@ -86,18 +83,50 @@ After=network.target
 ExecStart=$RSYNC_PATH
 Restart=always
 User=$USER_HOSTNAME
-WorkingDirectory=$USER_HOME
+WorkingDirectory=$HOME
 
 [Install]
 WantedBy=multi-user.target
 EOF"
 
-# Recharger systemd et activer le service de sauvegarde
+echo "Création du fichier de service pour le script piCameraTcpSlave..."
+sudo bash -c "cat > /etc/systemd/system/piSlaveTcpCamera.service <<EOF
+[Unit]
+Description=Service for piSlaveTcpCamera
+After=network.target
+
+[Service]
+ExecStart=$HOME/fqcf_camera/venv/bin/python3 $HOME/fqcf_camera/PiSlaveSetUp/piSlaveTcpCamera.py
+Restart=always
+User=$USER_HOSTNAME
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+
+
+ExecStart=$RSYNC_PATH
+Restart=always
+User=$USER_HOSTNAME
+WorkingDirectory=$HOME
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+
+
+
+
+# Recharger systemd et activer le service
 sudo systemctl daemon-reload
 sleep 5
+sudo systemctl enable timestamp_sync.service
 sudo systemctl enable continuous_backup.service
-sleep 3
+sudo systemctl enable piCameraTcpSlave.service
+sleep 5
+sudo systemctl start timestamp_sync.service
 sudo systemctl start continuous_backup.service
+sudo systemctl start piCameraTcpSlave.service
 echo "Configuration terminée !"
 
 echo "service continuous_backup state: "
