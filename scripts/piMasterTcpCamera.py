@@ -4,11 +4,12 @@ import os
 from datetime import datetime
 from picamera2 import Picamera2
 import glob
+import threading
 
 # Configuration
 PORT = 12344  # Port d'envoi des requêtes
 
-pi_numbers = [1]
+pi_numbers = [1,2,3,4,5,6] # Liste des numéros de Raspberry Pi (1 à 6)
 pi_ips = [f"192.168.0.10{pi_number}" for pi_number in pi_numbers]
 HEADER = "Photo"  # Entête pour identifier les paquets
 
@@ -54,23 +55,41 @@ def capture_picture():
     while True:
         message = f"{HEADER}:{id}"
 
-        # Envoi de la requête TCP aux deux serveurs
-        for ip in pi_ips:
-            send_tcp_message(ip, PORT, message)
-
         # Capture de l'image après la transmission des messages
         nom_fichier = os.path.join(
             dossier_destination,
             f"pi0_{id:04d}_{datetime.now().strftime('%Y%m%d_%H%M%S%f')[:-3]}.jpg"
         )
-        picam2.capture_file(nom_fichier)
+
+        # Envoi de la requête TCP aux six serveurs en parallèle
+
+        def capture_image():
+            picam2.capture_file(nom_fichier)
+
+        threads = []
+        for ip in pi_ips:
+            start = datetime.now()
+            print('time: ', start.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
+            t = threading.Thread(target=send_tcp_message, args=(ip, PORT, message))
+            t.start()
+            threads.append(t)
+        for t in threads:
+            t.join()
+            
+        capture_delay = 0.3  # delay in seconds before capturing the image
+        print('time difference after sending messages: ', (datetime.now() - start).total_seconds(), 'seconds')
+        capture_thread = threading.Timer(capture_delay, capture_image)
+        capture_thread.start()
+        capture_thread.join()
+        time_after_capture = datetime.now()
+        print('time difference after capture: ', (time_after_capture - start).total_seconds(), 'seconds')
+
         if os.path.getsize(nom_fichier) > 1000:
             print(f"Image captured and saved as {nom_fichier}")
             id += 1
             time.sleep(0.5)
         else:
             print(f"Failed to capture image for id {id}")
-        
 
 if __name__ == "__main__":
     capture_picture()
