@@ -58,7 +58,7 @@ def capture_picture():
         # Capture de l'image après la transmission des messages
         nom_fichier = os.path.join(
             dossier_destination,
-            f"pi0_{id:04d}_{datetime.now().strftime('%Y%m%d_%H%M%S%f')[:-3]}.jpg"
+            f"pi0_{id}_{datetime.now().strftime('%Y%m%d_%H%M%S%f')[:-3]}.jpg"
         )
 
         # Envoi de la requête TCP aux six serveurs en parallèle
